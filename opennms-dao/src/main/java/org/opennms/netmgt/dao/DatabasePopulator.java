@@ -434,6 +434,7 @@ public class DatabasePopulator {
             .setCollectionEnabled(true)
             .setIfOperStatus(1)
             .setIfSpeed(10000000)
+            .setIfName("atm0")
             .setIfDescr("ATM0")
             .setIfAlias("Initial ifAlias value")
             .setIfType(37)

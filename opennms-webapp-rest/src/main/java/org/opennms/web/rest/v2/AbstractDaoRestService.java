@@ -235,7 +235,7 @@ public abstract class AbstractDaoRestService<T,Q,K extends Serializable,I extend
             crit.setLimit(null);
             crit.setOffset(null);
             crit.setOrders(new ArrayList<Order>());
-            int totalCount = getDao().countMatching(crit);
+            long totalCount = getDao().countMatching(crit);
 
             JaxbListWrapper<T> list = createListWrapper(coll);
             list.setTotalCount(totalCount);

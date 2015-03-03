@@ -52,6 +52,11 @@ import org.opennms.test.JUnitConfigurationEnvironment;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.test.context.ContextConfiguration;
+import org.springframework.transaction.TransactionStatus;
+import org.springframework.transaction.annotation.Transactional;
+import org.springframework.transaction.support.TransactionCallback;
+import org.springframework.transaction.support.TransactionCallbackWithoutResult;
+import org.springframework.transaction.support.TransactionTemplate;
 
 /**
  * This class tests some of the quirky behaviors of persisting events.
@@ -83,6 +88,9 @@ public class HibernateEventWriterIT {
     @Autowired
     private JdbcTemplate jdbcTemplate;
 
+    @Autowired
+    private TransactionTemplate transactionTemplate;
+
     /**
      * Tests writing nulls to postgres db and the db encoding.
      * @throws SQLException
@@ -113,7 +121,12 @@ public class HibernateEventWriterIT {
         m_eventWriter.process(bldr.getLog());
         assertTrue(event.getDbid() > 0);
 
-        final String parms = jdbcTemplate.queryForObject("SELECT eventParms FROM events LIMIT 1", String.class);
+        final String parms = transactionTemplate.execute(new TransactionCallback<String>() {
+            @Override
+            public String doInTransaction(TransactionStatus status) {
+                return jdbcTemplate.queryForObject("SELECT eventParms FROM events LIMIT 1", String.class);
+            }
+        });
         assertEquals("test=testVal(string,text);test2=valWith%0Null%0(string,text);test3=" + snmpVal.toString() + "(string,text);test=B9cECgEXBgArAAA%61(string,text)", parms);
     }
 
@@ -134,7 +147,12 @@ public class HibernateEventWriterIT {
         m_eventWriter.process(bldr.getLog());
         assertTrue(event.getDbid() > 0);
 
-        final String descr = jdbcTemplate.queryForObject("SELECT eventDescr FROM events LIMIT 1", String.class);
+        final String descr = transactionTemplate.execute(new TransactionCallback<String>() {
+            @Override
+            public String doInTransaction(TransactionStatus status) {
+                return jdbcTemplate.queryForObject("SELECT eventDescr FROM events LIMIT 1", String.class);
+            }
+        });
         assertEquals("abc%0def", descr);
     }
 
@@ -155,17 +173,32 @@ public class HibernateEventWriterIT {
         m_eventWriter.process(bldr.getLog());
         assertTrue(event.getDbid() > 0);
 
-        String minionId = jdbcTemplate.queryForObject("SELECT systemId FROM events LIMIT 1", String.class);
+        String minionId = transactionTemplate.execute(new TransactionCallback<String>() {
+            @Override
+            public String doInTransaction(TransactionStatus status) {
+                return jdbcTemplate.queryForObject("SELECT systemId FROM events LIMIT 1", String.class);
+            }
+        });
         assertEquals(DistPollerDao.DEFAULT_DIST_POLLER_ID, minionId);
 
-        jdbcTemplate.execute("DELETE FROM events");
-        jdbcTemplate.execute(String.format("INSERT INTO monitoringsystems (id, location, type) VALUES ('%s', 'Hello World', '%s')", systemId, OnmsMonitoringSystem.TYPE_MINION));
+        transactionTemplate.execute(new TransactionCallbackWithoutResult() {
+            @Override
+            protected void doInTransactionWithoutResult(TransactionStatus status) {
+                jdbcTemplate.execute("DELETE FROM events");
+                jdbcTemplate.execute(String.format("INSERT INTO monitoringsystems (id, location, type) VALUES ('%s', 'Hello World', '%s')", systemId, OnmsMonitoringSystem.TYPE_MINION));
+            }
+        });
 
         event = bldr.getEvent();
         m_eventWriter.process(bldr.getLog());
         assertTrue(event.getDbid() > 0);
 
-        minionId = jdbcTemplate.queryForObject("SELECT systemId FROM events LIMIT 1", String.class);
+        minionId = transactionTemplate.execute(new TransactionCallback<String>() {
+            @Override
+            public String doInTransaction(TransactionStatus status) {
+                return jdbcTemplate.queryForObject("SELECT systemId FROM events LIMIT 1", String.class);
+            }
+        });
         assertEquals(systemId, minionId);
     }
 
@@ -174,7 +207,7 @@ public class HibernateEventWriterIT {
      * @throws SQLException
      */
     @Test
-	public void testWriteEventLogmsgWithNull() throws Exception {
+    public void testWriteEventLogmsgWithNull() throws Exception {
         EventBuilder bldr = new EventBuilder("testUei", "testSource");
         bldr.setLogDest(HibernateEventWriter.LOG_MSG_DEST_LOG_AND_DISPLAY);
 
@@ -185,11 +218,17 @@ public class HibernateEventWriterIT {
         m_eventWriter.process(bldr.getLog());
         assertTrue(event.getDbid() > 0);
 
-        final String logMessage = jdbcTemplate.queryForObject("SELECT eventLogmsg FROM events LIMIT 1", String.class);
+        final String logMessage = transactionTemplate.execute(new TransactionCallback<String>() {
+            @Override
+            public String doInTransaction(TransactionStatus status) {
+                return jdbcTemplate.queryForObject("SELECT eventLogmsg FROM events LIMIT 1", String.class);
+            }
+        });
         assertEquals("abc%0def", logMessage);
     }
     
     @Test
+    @Transactional
     public void testGetEventHostWithNullHost() throws Exception {
         jdbcTemplate.update("INSERT INTO node (location, nodeId, nodeCreateTime) VALUES ('" + MonitoringLocationDao.DEFAULT_MONITORING_LOCATION_ID + "', nextVal('nodeNxtId'), now())");
         int nodeId = jdbcTemplate.queryForObject("SELECT nodeId FROM node LIMIT 1", Integer.class);
@@ -202,6 +241,7 @@ public class HibernateEventWriterIT {
     }
 
     @Test
+    @Transactional
     public void testGetEventHostWithHostNoNodeId() throws Exception {
         jdbcTemplate.update("INSERT INTO node (location, nodeId, nodeCreateTime) VALUES ('" + MonitoringLocationDao.DEFAULT_MONITORING_LOCATION_ID + "', nextVal('nodeNxtId'), now())");
         int nodeId = jdbcTemplate.queryForObject("SELECT nodeId FROM node LIMIT 1", Integer.class);
@@ -215,6 +255,7 @@ public class HibernateEventWriterIT {
     }
     
     @Test
+    @Transactional
     public void testGetEventHostWithOneMatch() throws Exception {
         jdbcTemplate.update("INSERT INTO node (location, nodeId, nodeCreateTime) VALUES ('" + MonitoringLocationDao.DEFAULT_MONITORING_LOCATION_ID + "', nextVal('nodeNxtId'), now())");
         long nodeId = jdbcTemplate.queryForObject("SELECT nodeId FROM node LIMIT 1", Long.class);
@@ -229,6 +270,7 @@ public class HibernateEventWriterIT {
     }
     
     @Test
+    @Transactional
     public void testGetHostNameWithOneMatch() throws Exception {
         jdbcTemplate.update("INSERT INTO node (location, nodeId, nodeCreateTime) VALUES ('" + MonitoringLocationDao.DEFAULT_MONITORING_LOCATION_ID + "', nextVal('nodeNxtId'), now())");
         int nodeId = jdbcTemplate.queryForObject("SELECT nodeId FROM node LIMIT 1", Integer.class);
@@ -238,6 +280,7 @@ public class HibernateEventWriterIT {
     }
     
     @Test
+    @Transactional
     public void testGetHostNameWithOneMatchNullHostname() throws Exception {
         jdbcTemplate.update("INSERT INTO node (location, nodeId, nodeCreateTime) VALUES ('" + MonitoringLocationDao.DEFAULT_MONITORING_LOCATION_ID + "', nextVal('nodeNxtId'), now())");
         int nodeId = jdbcTemplate.queryForObject("SELECT nodeId FROM node LIMIT 1", Integer.class);
@@ -247,6 +290,7 @@ public class HibernateEventWriterIT {
     }
     
     @Test
+    @Transactional
     public void testGetHostNameWithTwoMatch() throws Exception {
         jdbcTemplate.update("INSERT INTO node (location, nodeId, nodeCreateTime, nodeLabel) VALUES ('" + MonitoringLocationDao.DEFAULT_MONITORING_LOCATION_ID + "', nextVal('nodeNxtId'), now(), ?)", "First Node");
         int nodeId1 = jdbcTemplate.queryForObject("SELECT nodeId FROM node WHERE nodeLabel = ?", new Object[] { "First Node" }, Integer.class);
@@ -260,6 +304,7 @@ public class HibernateEventWriterIT {
     }
     
     @Test
+    @Transactional
     public void testGetHostNameWithNoHostMatch() throws Exception {
             assertEquals("getHostName should return the IP address it was passed", "192.168.1.1", m_eventUtil.getHostName(1, "192.168.1.1"));
     }
@@ -269,8 +314,13 @@ public class HibernateEventWriterIT {
         int serviceId = 1;
         String serviceName = "some bogus service";
 
-        jdbcTemplate.update("insert into service (serviceId, serviceName) values (?, ?)", new Object[] { serviceId, serviceName });
-        
+        transactionTemplate.execute(new TransactionCallbackWithoutResult() {
+            @Override
+            protected void doInTransactionWithoutResult(TransactionStatus status) {
+                jdbcTemplate.update("insert into service (serviceId, serviceName) values (?, ?)", new Object[] { serviceId, serviceName });
+            }
+        });
+
         EventBuilder bldr = new EventBuilder("uei.opennms.org/foo", "someSource");
         bldr.setLogMessage(HibernateEventWriter.LOG_MSG_DEST_LOG_AND_DISPLAY);
         bldr.setService(serviceName);
@@ -280,7 +330,19 @@ public class HibernateEventWriterIT {
         m_eventWriter.process(bldr.getLog());
         assertTrue(event.getDbid() > 0);
         
-        assertEquals("event count", new Integer(1), jdbcTemplate.queryForObject("select count(*) from events", Integer.class));
-        assertEquals("event service ID", new Integer(serviceId), jdbcTemplate.queryForObject("select serviceID from events", Integer.class));
+        Integer value = transactionTemplate.execute(new TransactionCallback<Integer>() {
+            @Override
+            public Integer doInTransaction(TransactionStatus status) {
+                return jdbcTemplate.queryForObject("select count(*) from events", Integer.class);
+            }
+        });
+        assertEquals("event count", new Integer(1), value);
+        value = transactionTemplate.execute(new TransactionCallback<Integer>() {
+            @Override
+            public Integer doInTransaction(TransactionStatus status) {
+                return jdbcTemplate.queryForObject("select serviceID from events", Integer.class);
+            }
+        });
+        assertEquals("event service ID", new Integer(serviceId), value);
     }
 }
