@@ -115,7 +115,7 @@ public class NCSEdgeStatusProvider implements EdgeStatusProvider{
         List<OnmsAlarm> alarms = getAlarmDao().findMatching(criteria);
 
 
-        Set<String> alarmsSet = new HashSet<String>();
+        Set<String> alarmsSet = new HashSet<>();
 
         for (OnmsAlarm alarm : alarms) {
 

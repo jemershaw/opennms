@@ -165,7 +165,7 @@ public class JmsNorthBounderTest {
 
         List<JmsDestination> destinations = config.getDestinations();
 
-        List<JmsNorthbounder> nbis = new LinkedList<JmsNorthbounder>();
+        List<JmsNorthbounder> nbis = new LinkedList<>();
 
         for (JmsDestination jmsDestination : destinations) {
             JmsNorthbounder nbi = new JmsNorthbounder(config, m_jmsNorthbounderConnectionFactory, jmsDestination);
@@ -174,7 +174,7 @@ public class JmsNorthBounderTest {
         }
 
         int j = 7;
-        List<NorthboundAlarm> alarms = new LinkedList<NorthboundAlarm>();
+        List<NorthboundAlarm> alarms = new LinkedList<>();
 
         OnmsNode node = new OnmsNode(m_locationDao.getDefaultLocation(), NODE_LABEL);
         node.setForeignSource("TestGroup");
@@ -237,7 +237,7 @@ public class JmsNorthBounderTest {
         Thread.sleep(100);
 
         // Let's become a consumer and receive the messages!
-        List<String> messages = new LinkedList<String>();
+        List<String> messages = new LinkedList<>();
         Message m = m_template.receive("OpenNMSAlarmQueue");
         while (m != null) {
             Assert.assertTrue(m instanceof TextMessage);
@@ -272,7 +272,7 @@ public class JmsNorthBounderTest {
 
         List<JmsDestination> destinations = config.getDestinations();
 
-        List<JmsNorthbounder> nbis = new LinkedList<JmsNorthbounder>();
+        List<JmsNorthbounder> nbis = new LinkedList<>();
 
         for (JmsDestination jmsDestination : destinations) {
             JmsNorthbounder nbi = new JmsNorthbounder(
@@ -283,7 +283,7 @@ public class JmsNorthBounderTest {
             nbis.add(nbi);
         }
 
-        List<NorthboundAlarm> alarms = new LinkedList<NorthboundAlarm>();
+        List<NorthboundAlarm> alarms = new LinkedList<>();
         OnmsNode node = new OnmsNode(null, NODE_LABEL);
         node.setForeignSource("TestGroup");
         node.setForeignId("2");
@@ -361,7 +361,7 @@ public class JmsNorthBounderTest {
 
         List<JmsDestination> destinations = config.getDestinations();
 
-        List<JmsNorthbounder> nbis = new LinkedList<JmsNorthbounder>();
+        List<JmsNorthbounder> nbis = new LinkedList<>();
 
         for (JmsDestination jmsDestination : destinations) {
             JmsNorthbounder nbi = new JmsNorthbounder(
@@ -373,7 +373,7 @@ public class JmsNorthBounderTest {
             nbis.add(nbi);
         }
 
-        List<NorthboundAlarm> alarms = new LinkedList<NorthboundAlarm>();
+        List<NorthboundAlarm> alarms = new LinkedList<>();
         OnmsNode node = new OnmsNode(null, NODE_LABEL);
         node.setForeignSource("TestGroup");
         node.setForeignId("2");
@@ -453,7 +453,7 @@ public class JmsNorthBounderTest {
 
         List<JmsDestination> destinations = config.getDestinations();
 
-        List<JmsNorthbounder> nbis = new LinkedList<JmsNorthbounder>();
+        List<JmsNorthbounder> nbis = new LinkedList<>();
 
         for (JmsDestination jmsDestination : destinations) {
             JmsNorthbounder nbi = new JmsNorthbounder(
@@ -464,7 +464,7 @@ public class JmsNorthBounderTest {
             nbis.add(nbi);
         }
 
-        List<NorthboundAlarm> alarms = new LinkedList<NorthboundAlarm>();
+        List<NorthboundAlarm> alarms = new LinkedList<>();
         OnmsNode node = new OnmsNode(null, NODE_LABEL);
         node.setForeignSource("TestGroup");
         node.setForeignId("2");
