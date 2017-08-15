@@ -427,6 +427,11 @@
     </dependency>
     <dependency>
       <groupId>org.opennms.features.notifications</groupId>
+      <artifactId>org.opennms.features.notifications.pagerduty</artifactId>
+      <version>${project.version}</version>
+    </dependency>
+    <dependency>
+      <groupId>org.opennms.features.notifications</groupId>
       <artifactId>org.opennms.features.notifications.ticket-strategy</artifactId>
       <version>${project.version}</version>
     </dependency>
