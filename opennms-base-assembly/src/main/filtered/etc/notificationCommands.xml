@@ -218,4 +218,12 @@
             <switch>-tm</switch>
         </argument>
     </command>
+    <command service-registry="true">
+        <name>ticketing</name>
+        <execute>(type=org.opennms.netmgt.notifd.ticket.TicketNotificationStrategy)</execute>
+        <comment>class for triggering ticket creation as part of a destination path</comment>
+        <argument streamed="false">
+            <switch>eventID</switch>
+        </argument>
+    </command>
 </notification-commands>

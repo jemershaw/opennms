@@ -7,8 +7,8 @@
   </parent>
   <modelVersion>4.0.0</modelVersion>
   <groupId>org.opennms.features.notifications</groupId>
-  <artifactId>org.opennms.features.notifications.ticket-strategy</artifactId>
-  <name>OpenNMS :: Features :: Notifications :: Ticket</name>
+  <artifactId>org.opennms.features.notifications.api</artifactId>
+  <name>OpenNMS :: Features :: Notifications :: API</name>
   <packaging>bundle</packaging>
   <build>
     <plugins>
@@ -26,34 +26,4 @@
       </plugin>
     </plugins>
   </build>
-  <dependencies>
-    <dependency>
-      <groupId>org.opennms.features.notifications</groupId>
-      <artifactId>org.opennms.features.notifications.api</artifactId>
-    </dependency>
-    <dependency>
-      <groupId>org.opennms.features.events</groupId>
-      <artifactId>org.opennms.features.events.api</artifactId>
-    </dependency>
-    <dependency>
-      <groupId>org.opennms</groupId>
-      <artifactId>opennms-dao-api</artifactId>
-    </dependency>
-
-    <dependency>
-      <groupId>org.opennms.core.test-api</groupId>
-      <artifactId>org.opennms.core.test-api.services</artifactId>
-      <scope>test</scope>
-    </dependency>
-    <dependency>
-      <groupId>org.mockito</groupId>
-      <artifactId>mockito-all</artifactId>
-      <scope>test</scope>
-    </dependency>
-    <dependency>
-      <groupId>org.opennms</groupId>
-      <artifactId>opennms-dao-mock</artifactId>
-      <scope>test</scope>
-    </dependency>
-  </dependencies>
 </project>
