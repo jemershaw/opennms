@@ -50,6 +50,8 @@ import junit.framework.TestCase;
  */
 public class C3P0ConnectionFactoryIT extends TestCase {
     public void testMarshalDataSourceFromConfig() throws Exception {
+        if (Boolean.getBoolean("skipConnectionTests")) return;
+
         C3P0ConnectionFactory factory1 = null;
         C3P0ConnectionFactory factory2 = null;
         
