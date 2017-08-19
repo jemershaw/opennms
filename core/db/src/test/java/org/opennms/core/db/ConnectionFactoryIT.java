@@ -51,6 +51,8 @@ import org.opennms.test.DaoTestConfigBean;
  */
 public class ConnectionFactoryIT extends TestCase {
 	public void testMarshalDataSourceFromConfig() throws Exception {
+		if (Boolean.getBoolean("skipConnectionTests")) return;
+
 		DaoTestConfigBean bean = new DaoTestConfigBean();
 		bean.afterPropertiesSet();
 
@@ -123,6 +125,8 @@ public class ConnectionFactoryIT extends TestCase {
 	}
 
 	public void testPoolWithSqlExceptions() throws Exception {
+		if (Boolean.getBoolean("skipConnectionTests")) return;
+
 		DaoTestConfigBean bean = new DaoTestConfigBean();
 		bean.afterPropertiesSet();
 
